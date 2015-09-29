@@ -1,0 +1,471 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.18.3 -->
+<interface>
+  <requires lib="gtk+" version="3.12"/>
+  <object class="GtkAdjustment" id="interaction_1_range">
+    <property name="lower">-10</property>
+    <property name="upper">10</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="interaction_2_range">
+    <property name="lower">-10</property>
+    <property name="upper">10</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="interaction_3_range">
+    <property name="lower">-10</property>
+    <property name="upper">10</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="nearest_range">
+    <property name="upper">200</property>
+    <property name="value">5</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="num_fish_range">
+    <property name="lower">1</property>
+    <property name="upper">200</property>
+    <property name="value">50</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="radius_range">
+    <property name="upper">100</property>
+    <property name="value">5</property>
+    <property name="step_increment">0.10000000000000001</property>
+    <property name="page_increment">1</property>
+  </object>
+  <object class="GtkWindow" id="zebrafish_demo_window">
+    <property name="width_request">600</property>
+    <property name="can_focus">False</property>
+    <property name="title" translatable="yes">Zebrafish demo</property>
+    <signal name="delete-event" handler="on_zebrafish_demo_window_delete_event" swapped="no"/>
+    <child>
+      <object class="GtkBox" id="box1">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <child>
+          <object class="GtkDrawingArea" id="fish_area">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="hexpand">True</property>
+            <signal name="draw" handler="on_fish_area_draw" swapped="no"/>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="box4">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="valign">start</property>
+            <property name="border_width">4</property>
+            <property name="orientation">vertical</property>
+            <property name="spacing">4</property>
+            <child>
+              <object class="GtkLabel" id="title_lbl">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Zebrafish demo</property>
+                <attributes>
+                  <attribute name="weight" value="bold"/>
+                  <attribute name="scale" value="1.7"/>
+                </attributes>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="num_fish_lbl">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Number of fish</property>
+                <property name="ellipsize">end</property>
+                <attributes>
+                  <attribute name="weight" value="bold"/>
+                </attributes>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkScale" id="num_fish_scale">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="adjustment">num_fish_range</property>
+                <property name="round_digits">0</property>
+                <property name="digits">0</property>
+                <property name="has_origin">False</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="neighbours_lbl">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Neighbours</property>
+                <property name="angle">0.059999999999999998</property>
+                <attributes>
+                  <attribute name="weight" value="bold"/>
+                </attributes>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkGrid" id="grid2">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="row_spacing">4</property>
+                <property name="column_spacing">4</property>
+                <property name="row_homogeneous">True</property>
+                <property name="column_homogeneous">True</property>
+                <child>
+                  <object class="GtkRadioButton" id="nearest_rad">
+                    <property name="label" translatable="yes">Nearest neighbours</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="xalign">0.5</property>
+                    <property name="draw_indicator">True</property>
+                    <property name="group">radius_rad</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkRadioButton" id="voronoi_rad">
+                    <property name="label" translatable="yes">Voronoi tessellation</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="xalign">0.5</property>
+                    <property name="draw_indicator">True</property>
+                    <property name="group">radius_rad</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkSpinButton" id="radius_spin">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="text" translatable="yes">0.0</property>
+                    <property name="input_purpose">number</property>
+                    <property name="adjustment">radius_range</property>
+                    <property name="climb_rate">0.10000000000000001</property>
+                    <property name="digits">1</property>
+                    <property name="numeric">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkSpinButton" id="nearest_spin">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="text" translatable="yes">0</property>
+                    <property name="input_purpose">digits</property>
+                    <property name="adjustment">nearest_range</property>
+                    <property name="numeric">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkRadioButton" id="radius_rad">
+                    <property name="label" translatable="yes">Within specified radius</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="xalign">0.5</property>
+                    <property name="active">True</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">4</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="interaction_lbl">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Interaction strength</property>
+                <attributes>
+                  <attribute name="weight" value="bold"/>
+                </attributes>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">5</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkBox" id="box2">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkDrawingArea" id="interaction_area">
+                    <property name="height_request">100</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <signal name="draw" handler="on_interaction_area_draw" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkBox" id="box3">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="homogeneous">True</property>
+                    <child>
+                      <object class="GtkScale" id="interaction_1_scale">
+                        <property name="height_request">150</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="orientation">vertical</property>
+                        <property name="adjustment">interaction_1_range</property>
+                        <property name="inverted">True</property>
+                        <property name="round_digits">1</property>
+                        <property name="has_origin">False</property>
+                        <property name="value_pos">bottom</property>
+                        <signal name="value-changed" handler="on_interaction_scale_value_changed" swapped="no"/>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkScale" id="interaction_2_scale">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="orientation">vertical</property>
+                        <property name="adjustment">interaction_2_range</property>
+                        <property name="inverted">True</property>
+                        <property name="round_digits">1</property>
+                        <property name="has_origin">False</property>
+                        <property name="value_pos">bottom</property>
+                        <signal name="value-changed" handler="on_interaction_scale_value_changed" swapped="no"/>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkScale" id="interaction_3_scale">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="orientation">vertical</property>
+                        <property name="adjustment">interaction_3_range</property>
+                        <property name="inverted">True</property>
+                        <property name="round_digits">1</property>
+                        <property name="has_origin">False</property>
+                        <property name="value_pos">bottom</property>
+                        <signal name="value-changed" handler="on_interaction_scale_value_changed" swapped="no"/>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">2</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">6</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="options_lbl">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Options</property>
+                <attributes>
+                  <attribute name="weight" value="bold"/>
+                </attributes>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">7</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkBox" id="box5">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkCheckButton" id="show_interactions_chk">
+                    <property name="label" translatable="yes">Show interactions of fish zero</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="xalign">0.5</property>
+                    <property name="active">True</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="show_voronoi_chk">
+                    <property name="label" translatable="yes">Show Voronoi tessellation</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="xalign">0</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="debug_update_chk">
+                    <property name="label" translatable="yes">Debug update function</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="xalign">0</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">8</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkBox" id="box6">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="spacing">8</property>
+                <property name="homogeneous">True</property>
+                <child>
+                  <object class="GtkButton" id="reset_positions_btn">
+                    <property name="label" translatable="yes">Reset positions</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="reset_everything_btn">
+                    <property name="label" translatable="yes">Reset everything</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">9</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="debug_btn">
+                <property name="label" translatable="yes">Debug</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <signal name="clicked" handler="on_debug_btn_clicked" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">10</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>
