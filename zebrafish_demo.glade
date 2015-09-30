@@ -2,23 +2,12 @@
 <!-- Generated with glade 3.18.3 -->
 <interface>
   <requires lib="gtk+" version="3.12"/>
-  <object class="GtkAdjustment" id="interaction_1_range">
-    <property name="lower">-10</property>
-    <property name="upper">10</property>
+  <object class="GtkAdjustment" id="fish_speed_range">
+    <property name="lower">1</property>
+    <property name="upper">30</property>
+    <property name="value">10</property>
     <property name="step_increment">1</property>
-    <property name="page_increment">1</property>
-  </object>
-  <object class="GtkAdjustment" id="interaction_2_range">
-    <property name="lower">-10</property>
-    <property name="upper">10</property>
-    <property name="step_increment">1</property>
-    <property name="page_increment">1</property>
-  </object>
-  <object class="GtkAdjustment" id="interaction_3_range">
-    <property name="lower">-10</property>
-    <property name="upper">10</property>
-    <property name="step_increment">1</property>
-    <property name="page_increment">1</property>
+    <property name="page_increment">10</property>
   </object>
   <object class="GtkAdjustment" id="nearest_range">
     <property name="upper">200</property>
@@ -35,8 +24,15 @@
   </object>
   <object class="GtkAdjustment" id="radius_range">
     <property name="upper">100</property>
-    <property name="value">5</property>
+    <property name="value">20</property>
     <property name="step_increment">0.10000000000000001</property>
+    <property name="page_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="sim_speed_range">
+    <property name="lower">0.10000000000000001</property>
+    <property name="upper">4</property>
+    <property name="value">1</property>
+    <property name="step_increment">0.5</property>
     <property name="page_increment">1</property>
   </object>
   <object class="GtkWindow" id="zebrafish_demo_window">
@@ -56,7 +52,7 @@
             <signal name="draw" handler="on_fish_area_draw" swapped="no"/>
           </object>
           <packing>
-            <property name="expand">False</property>
+            <property name="expand">True</property>
             <property name="fill">True</property>
             <property name="position">0</property>
           </packing>
@@ -66,6 +62,7 @@
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="valign">start</property>
+            <property name="hexpand">False</property>
             <property name="border_width">4</property>
             <property name="orientation">vertical</property>
             <property name="spacing">4</property>
@@ -108,7 +105,6 @@
                 <property name="adjustment">num_fish_range</property>
                 <property name="round_digits">0</property>
                 <property name="digits">0</property>
-                <property name="has_origin">False</property>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -226,10 +222,10 @@
               </packing>
             </child>
             <child>
-              <object class="GtkLabel" id="interaction_lbl">
+              <object class="GtkLabel" id="parameters_lbl">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Interaction strength</property>
+                <property name="label" translatable="yes">Parameters</property>
                 <attributes>
                   <attribute name="weight" value="bold"/>
                 </attributes>
@@ -241,88 +237,62 @@
               </packing>
             </child>
             <child>
-              <object class="GtkBox" id="box2">
+              <object class="GtkGrid" id="grid1">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="orientation">vertical</property>
+                <property name="row_spacing">4</property>
+                <property name="column_spacing">12</property>
                 <child>
-                  <object class="GtkDrawingArea" id="interaction_area">
-                    <property name="height_request">100</property>
+                  <object class="GtkLabel" id="sim_speed_lbl">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <signal name="draw" handler="on_interaction_area_draw" swapped="no"/>
+                    <property name="label" translatable="yes">Simulation speed</property>
+                    <property name="xalign">0</property>
                   </object>
                   <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">0</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkBox" id="box3">
+                  <object class="GtkScale" id="sim_speed_scale">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="homogeneous">True</property>
-                    <child>
-                      <object class="GtkScale" id="interaction_1_scale">
-                        <property name="height_request">150</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="orientation">vertical</property>
-                        <property name="adjustment">interaction_1_range</property>
-                        <property name="inverted">True</property>
-                        <property name="round_digits">1</property>
-                        <property name="has_origin">False</property>
-                        <property name="value_pos">bottom</property>
-                        <signal name="value-changed" handler="on_interaction_scale_value_changed" swapped="no"/>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkScale" id="interaction_2_scale">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="orientation">vertical</property>
-                        <property name="adjustment">interaction_2_range</property>
-                        <property name="inverted">True</property>
-                        <property name="round_digits">1</property>
-                        <property name="has_origin">False</property>
-                        <property name="value_pos">bottom</property>
-                        <signal name="value-changed" handler="on_interaction_scale_value_changed" swapped="no"/>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkScale" id="interaction_3_scale">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="orientation">vertical</property>
-                        <property name="adjustment">interaction_3_range</property>
-                        <property name="inverted">True</property>
-                        <property name="round_digits">1</property>
-                        <property name="has_origin">False</property>
-                        <property name="value_pos">bottom</property>
-                        <signal name="value-changed" handler="on_interaction_scale_value_changed" swapped="no"/>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">2</property>
-                      </packing>
-                    </child>
+                    <property name="can_focus">True</property>
+                    <property name="hexpand">True</property>
+                    <property name="adjustment">sim_speed_range</property>
+                    <property name="round_digits">1</property>
+                    <property name="value_pos">right</property>
                   </object>
                   <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="fish_speed_lbl">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">Fish speed</property>
+                    <property name="xalign">0</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">0</property>
+                    <property name="top_attach">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkScale" id="fish_speed_scale">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="hexpand">True</property>
+                    <property name="adjustment">fish_speed_range</property>
+                    <property name="round_digits">0</property>
+                    <property name="digits">0</property>
+                    <property name="value_pos">right</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="top_attach">1</property>
                   </packing>
                 </child>
               </object>

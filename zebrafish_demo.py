@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/bin/env python3
 
 # GTK and GObject bindings
 from gi.repository import Gtk, GObject
@@ -16,11 +16,24 @@ from math import pi, cos, sin, tan, exp, asin, acos, atan, log
 import os.path
 
 # IPython for debugging
-import IPython
+try:
+    import IPython
+    has_ipython = True
+except:
+    has_ipython = False
 
+# Python 2/3 compatibility
+try:
+    range = xrange
+except:
+    pass
+    
+    
 # Class for the fish
 class Fish:
     radius, nearest, voronoi = range(0, 3)
+
+    default_dt = 1/20
 
     pars_epj = {"mu_u": 10, "sigma_u": 1.4*3, "sigma_omega": 2.85,
                 "sigma_0": 12, "theta_u": 0.52, "theta_omega": 4.21,
@@ -31,7 +44,7 @@ class Fish:
     pars_school = {"mu_u": 10, "sigma_u": 2, "sigma_omega": 0,
                    "sigma_0": 12, "theta_u": 0.52, "theta_omega": 3,
                    "K_s": 2, "K_p": 5, "K_v": 12, "r_u": 3.6,
-                   "r_omega": 1.8, "d_c": 30, "delta": 45,
+                   "r_omega": 1.8, "d_c": 45, "delta": 30,
                    "f_W_a": 5.26, "f_W_b": 0.13}             
     
     def __init__(self):
@@ -41,7 +54,7 @@ class Fish:
         self.state = np.zeros((0, self.ndim))
         # Parameters for the simulation
         self.tank_radius = 100
-        self.dt = 1/20 # Time step
+        self.dt =  Fish.default_dt # Time step
         self.pars = Fish.pars_school
 
     @property
@@ -142,12 +155,12 @@ class Fish:
         cos_heading = np.cos(heading)
 
         # Calculate the wall distance for each fish
-        x_hx = x*sin_heading
-        y_hy = y*cos_heading
+        x_hx = x*cos_heading
+        y_hy = y*sin_heading
         r2_xy = x**2 + y**2
         self.wall_dist = -(x_hx + y_hy) + np.sqrt((x_hx + y_hy)**2 - (r2_xy - self.tank_radius**2))
-        self.wall_angle = np.arctan2(x + self.wall_dist*sin_heading,
-                                     y + self.wall_dist*cos_heading) - heading
+        self.wall_angle = np.arctan2(y + self.wall_dist*sin_heading,
+                                     x + self.wall_dist*cos_heading) - heading
         self.wall_angle[self.wall_angle < -pi] += 2*pi
 
         # Calculate the position angle of adjacent fish relative to the heading angle
@@ -181,13 +194,13 @@ class Fish:
         Omega_star[self.adj] = f_d*(1 + cos_theta)*(p["K_p"]*(self.dist[self.adj] - p["r_omega"])*sin_theta + p["K_v"]*sin_phi)
         Omega_i_star = Omega_star.sum(axis=1)
         Omega_i_star[N_i_idx] /= (N_i[N_i_idx]*p["theta_omega"])
-
+        
         # Calculate wall avoidance
         f_W = np.sign(self.wall_angle)*p["f_W_a"]*np.exp(-p["f_W_b"]*self.wall_dist)
         
         # Equations of motion
-        dU_dt = -p["theta_u"]*(U - p["mu_u"] - U_i_star)
-        dOmega_dt = -p["theta_omega"]*(Omega + f_W - Omega_i_star)
+        dU_dt = -p["theta_u"]*(U - p["mu_u"] - U_i_star.reshape((self.nfish, 1)))
+        dOmega_dt = -p["theta_omega"]*(Omega + f_W - Omega_i_star.reshape((self.nfish, 1)))
 
         # Euler-Maruyama
         U_new = U + dU_dt*self.dt + np.random.randn(self.nfish, 1)*p["sigma_u"]*np.sqrt(self.dt)
@@ -196,8 +209,8 @@ class Fish:
 
         # Plain Euler
         heading_new = np.mod(heading + Omega*self.dt, 2*pi)
-        x_new = x + U*sin_heading*self.dt
-        y_new = y + U*cos_heading*self.dt
+        x_new = x + U*cos_heading*self.dt
+        y_new = y + U*sin_heading*self.dt
 
         # Check for negative speeds
         U_new[U_new < 0] = 0
@@ -209,7 +222,7 @@ class Fish:
         y_new[idx] = y[idx]
         U_new[idx] = 0
 
-        if debug:
+        if debug and has_ipython:
             IPython.embed()
         
         # Update the state
@@ -231,9 +244,8 @@ class GUIHandler:
                        "nearest_rad", "nearest_range",
                        "voronoi_rad",
                        "interaction_area",
-                       "interaction_1_range",
-                       "interaction_2_range",
-                       "interaction_3_range",
+                       "sim_speed_range",
+                       "fish_speed_range",
                        "show_interactions_chk",
                        "show_voronoi_chk",
                        "debug_update_chk",
@@ -248,18 +260,24 @@ class GUIHandler:
 
         # Create some fish
         self.fish = Fish()
+
+        # Scaling for plotting
+        self.fish_plotting_scale = 1
         
         # Attach the signals to this object
         builder.connect_signals(self)
-            
+        
         # Show the main window
         self.zebrafish_demo_window.show_all()
 
     def update_fish(self):
         # Check that the number of fish hasn't changed
-        nfish = round(self.num_fish_range.get_value())
+        nfish = int(self.num_fish_range.get_value())
         if self.fish.nfish != nfish:
             self.fish.num_fish_update(nfish)
+        # Update the values of the parameters
+        self.fish.dt = Fish.default_dt*self.sim_speed_range.get_value()
+        self.fish.pars["mu_u"] = self.fish_speed_range.get_value()
         # Update the fish simulation
         if self.radius_rad.get_active():
             method = Fish.radius
@@ -281,7 +299,7 @@ class GUIHandler:
         if not hasattr(self.fish, "adj"):
             # The Fish.update function hasn't been run yet
             return
-        
+
         # Whether to show interactions
         interactions = self.show_interactions_chk.get_active()
 
@@ -308,6 +326,10 @@ class GUIHandler:
             cr.set_line_width(1/scale)
             cr.set_source_rgb(0, 0.6, 0)
             for i in range(0, nfish):
+                if (i == 0) and interactions:
+                    cr.set_source_rgb(1, 0, 0)
+                else:
+                    cr.set_source_rgb(0, 0.6, 0)
                 for j in range(i + 1, nfish):
                     if self.fish.voronoi_adj[i, j]:
                         cr.move_to(fish_pos[i, 0], fish_pos[i, 1])
@@ -322,6 +344,7 @@ class GUIHandler:
             cr.stroke()
                         
         # Draw the fish
+        sc = self.fish_plotting_scale
         for i in range(0, nfish):
             X = fish_pos[i, :]
             heading = fish_heading[i, 0]
@@ -329,15 +352,15 @@ class GUIHandler:
             cr.save()
             # Move from tank space to fish space
             cr.translate(X[0], X[1])
-            cr.rotate(-heading)
+            cr.rotate(heading)
             # Scale to visual sizes
             cr.scale(1/scale, 1/scale)
             # Draw the fish
-            cr.move_to(0, 7)
-            cr.line_to(4, 0)
-            cr.line_to(-1.5, -12)
-            cr.line_to(1.5, -12)
-            cr.line_to(-4, 0)
+            cr.move_to(7*sc, 0)
+            cr.line_to(0, 4*sc)
+            cr.line_to(-12*sc, -1.5*sc)
+            cr.line_to(-12*sc, 1.5*sc)
+            cr.line_to(0, -4*sc)
             cr.close_path()
             cr.set_line_width(1)
             cr.set_source_rgb(200/255, 207/255, 229/255) # A nice light blue
@@ -360,54 +383,9 @@ class GUIHandler:
         # Window has been closed - follow suit
         Gtk.main_quit(*args)
 
-    def on_interaction_area_draw(self, drawingarea, cr):
-        # Set up the transformations from tank space to visual space
-        dist_max = 30
-        U_max = 4
-        width = drawingarea.get_allocated_width()
-        height = drawingarea.get_allocated_height()
-        scale_x = width/dist_max
-        scale_y = 0.5*height/U_max
-        cr.translate(0, height/2)
-        cr.scale(scale_x, -scale_y)
-        
-
-        # Draw axes
-        cr.move_to(0, 0)
-        cr.line_to(dist_max, 0)
-        cr.move_to(0, -U_max)
-        cr.line_to(0, U_max)
-        cr.set_line_width(1/min(scale_x, scale_y))
-        cr.set_source_rgb(0.4, 0.4, 0.4)
-        cr.stroke()
-
-        # Draw interaction function
-        dist = np.linspace(0, dist_max, 101)
-        
-        f_d = 1 - np.exp((dist - self.fish.pars["d_c"])/self.fish.pars["delta"])
-        f_d[f_d < 0] = 0
-        force = f_d*self.fish.pars["K_s"]*(dist - self.fish.pars["r_u"])
-
-        cr.move_to(dist[0], force[0])
-        for i in range(1, 101):
-            cr.line_to(dist[i], force[i])
-        cr.set_source_rgb(1, 0, 0)
-        cr.stroke()
-
-    def on_interaction_scale_value_changed(self, range):
-        # One of the interaction strength sliders has changed
-        if self.interaction_area_timer is None:
-            # Use a timer to prevent hundreds of unnecessary draw events
-            self.interaction_area_timer = GObject.timeout_add(self.response_time, self.interaction_area_draw)
-
-    def interaction_area_draw(self):
-        # Signal a redraw for the interaction strength figure
-        self.interaction_area_timer = None
-        self.interaction_area.queue_draw()
-        return False
-        
     def on_debug_btn_clicked(self, button):
-        IPython.embed()
+        if has_ipython:
+            IPython.embed()
         
         
 # Work out where the Python file is
