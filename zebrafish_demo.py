@@ -1,5 +1,8 @@
 #!/bin/env python3
 
+# Python 2.7 compatibility
+from __future__ import division
+
 # GTK and GObject bindings
 from gi.repository import Gtk, GObject
 
@@ -19,18 +22,12 @@ import os.path
 try:
     import IPython
     has_ipython = True
-except:
+except Exception as e:
     has_ipython = False
 
-# Python 2/3 compatibility
-try:
-    range = xrange
-except:
-    pass
-    
     
 # Class for the fish
-class Fish:
+class Fish(object):
     radius, nearest, voronoi = range(0, 3)
 
     default_dt = 1/20
@@ -163,33 +160,30 @@ class Fish:
                                      x + self.wall_dist*cos_heading) - heading
         self.wall_angle[self.wall_angle < -pi] += 2*pi
 
-        # Calculate the position angle of adjacent fish relative to the heading angle
-        self.theta_ij = np.zeros((self.nfish, self.nfish))
-        self.theta_ij[self.adj] = np.arctan2(y_dist[self.adj], x_dist[self.adj])
-        self.theta_ij = self.theta_ij - heading # automatic singleton expansion
-        self.theta_ij[~self.adj] = np.nan # just in case of stupidity later...
-
-        # Calculate distance cut off function for adjacent fish (eqn 5 of EPJ paper, A. Zienkiewicz et al)
-        f_d = 1 - np.exp((self.dist[self.adj] - p["d_c"])/p["delta"])
-        f_d[f_d < 0] = 0
-
         # Calculate the number of neighbours
         N_i = self.adj.sum(axis=1)
         N_i_idx = N_i != 0
 
+        # Calculate the position angle of adjacent fish relative to the heading angle
+        self.theta_ij = np.arctan2(y_dist[self.adj], x_dist[self.adj]) - np.repeat(heading, N_i) # only bother calculating for adjacent fish for speed
+
         # Helpers
-        cos_theta = np.cos(self.theta_ij[self.adj])
-        sin_theta = np.sin(self.theta_ij[self.adj])
+        cos_theta = np.cos(self.theta_ij)
+        sin_theta = np.sin(self.theta_ij)
         phi = heading.T - heading
         sin_phi = np.sin(phi[self.adj])
         
-        # Calculate U_i_star (eqn 4a of EPJ paper, A. Zienkiewicz et al)
+        # Calculate distance cut off function for adjacent fish
+        f_d = 1 - np.exp((self.dist[self.adj] - p["d_c"])/p["delta"])
+        f_d[f_d < 0] = 0
+
+        # Calculate U_i_star
         U_star = np.zeros((self.nfish, self.nfish))
         U_star[self.adj] = f_d*p["K_s"]*(self.dist[self.adj] - p["r_u"])*cos_theta
         U_i_star = U_star.sum(axis=1)
         U_i_star[N_i_idx] /= (N_i[N_i_idx]*p["theta_u"])
 
-        # Calculate Omega_i_star (eqn 4b of EPJ paper, A. Zienkiewicz et al)
+        # Calculate Omega_i_star
         Omega_star = np.zeros((self.nfish, self.nfish))
         Omega_star[self.adj] = f_d*(1 + cos_theta)*(p["K_p"]*(self.dist[self.adj] - p["r_omega"])*sin_theta + p["K_v"]*sin_phi)
         Omega_i_star = Omega_star.sum(axis=1)
@@ -234,7 +228,7 @@ class Fish:
         
         
 # Handler for the different GUI events
-class GUIHandler:
+class GUIHandler(object):
     def __init__(self, builder):
         # Initialise and store any information needed
         self.builder = builder
@@ -326,10 +320,6 @@ class GUIHandler:
             cr.set_line_width(1/scale)
             cr.set_source_rgb(0, 0.6, 0)
             for i in range(0, nfish):
-                if (i == 0) and interactions:
-                    cr.set_source_rgb(1, 0, 0)
-                else:
-                    cr.set_source_rgb(0, 0.6, 0)
                 for j in range(i + 1, nfish):
                     if self.fish.voronoi_adj[i, j]:
                         cr.move_to(fish_pos[i, 0], fish_pos[i, 1])
