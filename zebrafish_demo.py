@@ -4,7 +4,10 @@
 from __future__ import division
 
 # GTK and GObject bindings
-from gi.repository import Gtk, GObject
+from gi.repository import Gtk, GObject, Gdk, GdkPixbuf
+
+# Cairo
+import cairo
 
 # Numpy
 import numpy as np
@@ -49,6 +52,7 @@ class Fish(object):
         self.tank_radius = 50
         self.dt =  Fish.default_dt # Time step
         self.pars = dict(Fish.default_pars)
+        self.grab_strong_multiplier = 10
 
     @property
     def X(self):
@@ -93,7 +97,7 @@ class Fish(object):
                 self.state[i, :] = [x, y, heading, 0, self.pars["U_min"]]
         self.nfish = fish_wanted
 
-    def update(self, method, radius, nearest, debug=False, grab=None):
+    def update(self, method, radius, nearest, debug=False, grab=None, grab_repel=False, grab_strong=False):
         # Extract state variables (Nones are required to prevent dimension squeezing)
         X = self.state[:, :2] # cartesian position
         x = self.state[:, 0, None] # cartesian position x
@@ -170,6 +174,8 @@ class Fish(object):
         cos_theta = np.cos(self.theta_ij)
         sin_theta = np.sin(self.theta_ij)
         phi = heading.T - heading
+        if grab is not None:
+            phi[:, grab] = 0 # grabbed fish don't interact via alignment
         sin_phi = np.sin(phi[adj])
         
         # Calculate distance cut off function for adjacent fish
@@ -179,6 +185,11 @@ class Fish(object):
         # Calculate U_i_star
         U_star = np.zeros((self.nfish, self.nfish))
         U_star[adj] = f_d*p["K_s"]*(self.dist[adj] - p["r_u"])*cos_theta
+        if grab is not None:
+            if grab_repel:
+                U_star[:, grab] *= -1
+            if grab_strong:
+                U_star[:, grab] *= self.grab_strong_multiplier
         U_i_star = U_star.sum(axis=1)
         U_i_star[N_i_idx] /= (N_i[N_i_idx]*p["theta_u"])
 
@@ -187,6 +198,11 @@ class Fish(object):
         Omega_star = np.zeros((self.nfish, self.nfish))
         Omega_star[adj] = f_d*(1 + cos_theta)*(p["K_p"]*(self.dist[adj] - p["r_omega"])*sin_theta/U_rep
                                                     + U_rep/p["mu_u"]*p["K_v"]*sin_phi/p["theta_omega"])
+        if grab is not None:
+            if grab_repel:
+                Omega_star[:, grab] *= -1
+            if grab_strong:
+                Omega_star[:, grab] *= self.grab_strong_multiplier
         Omega_i_star = Omega_star.sum(axis=1)
         Omega_i_star[N_i_idx] /= N_i[N_i_idx]
         
@@ -244,10 +260,11 @@ class Fish(object):
         
 # Handler for the different GUI events
 class GUIHandler(object):
-    def __init__(self, builder):
+    def __init__(self, builder, py_path):
         # Initialise and store any information needed
         self.builder = builder
         for widget in ["zebrafish_demo_window",
+                       "talking_points_window",
                        "num_fish_range",
                        "radius_rad", "radius_range",
                        "nearest_rad", "nearest_range",
@@ -255,6 +272,8 @@ class GUIHandler(object):
                        "interaction_area",
                        "show_interactions_chk",
                        "show_voronoi_chk",
+                       "grab_strong_chk",
+                       "grab_repel_chk",
                        "debug_update_chk",
                        "fish_area",
                        "speed_range",
@@ -284,12 +303,16 @@ class GUIHandler(object):
         # For grabbing a fish
         self.grab = None
         self.cr_matrix = None
-        
+
+        # For the talking points
+        self.talking_points_pages = {}
+         
         # Attach the signals to this object
         builder.connect_signals(self)
-        
+            
         # Show the main window
         self.zebrafish_demo_window.show_all()
+        self.zebrafish_demo_window.maximize()
 
         # Remove debugging buttons if necessary
         if not DEBUG:
@@ -312,7 +335,9 @@ class GUIHandler(object):
                          radius=self.radius_range.get_value(),
                          nearest=round(self.nearest_range.get_value()),
                          debug=self.debug_update_chk.get_active(),
-                         grab=self.grab)
+                         grab=self.grab,
+                         grab_strong=self.grab_strong_chk.get_active(),
+                         grab_repel=self.grab_repel_chk.get_active())
         if self.debug_update_chk.get_active():
             self.debug_update_chk.set_active(False)
         # Draw the fish
@@ -458,14 +483,42 @@ class GUIHandler(object):
                 self.fish.state[self.grab, 0] = pt[0]
                 self.fish.state[self.grab, 1] = pt[1]
 
-    
+    def on_talking_points_btn_clicked(self, button):
+        # Bring the talking points window to the front (and show if not already showing)
+        self.talking_points_window.present()
+
+    def on_talking_points_area_realize(self, widget):
+        # Load the talking points text (SVG images)
+        sc = widget.get_scale_factor()
+        page = widget.get_name()
+        width = sc*widget.get_allocated_width()
+        height = sc*widget.get_allocated_height()
+        svg = GdkPixbuf.Pixbuf.new_from_file_at_scale(os.path.join(py_path, page), width, height, True)
+        surf = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
+        cr = cairo.Context(surf)
+        Gdk.cairo_set_source_pixbuf(cr, svg, 0, 0)
+        cr.paint()
+        self.talking_points_pages[page] = surf
+
+    def on_close_btn_clicked(self, button):
+        # Hide the talking points window
+        self.talking_points_window.hide()
+
+    def on_talking_points_area_draw(self, drawing_area, cr):
+        # This is basically a fudge to make it look good on HiDPI screens (like mine...)
+        sc = 1/drawing_area.get_scale_factor()
+        cr.scale(sc, sc)
+        cr.set_source_surface(self.talking_points_pages[drawing_area.get_name()])
+        cr.paint()
+        
+                
 # Work out where the Python file is
 py_path = os.path.dirname(os.path.realpath(__file__))
                 
 # Build the GUI
 builder = Gtk.Builder()
 builder.add_from_file(os.path.join(py_path, "zebrafish_demo.glade"))
-gui = GUIHandler(builder)
+gui = GUIHandler(builder, py_path)
 
 # Start the main loop
 Gtk.main()

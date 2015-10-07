@@ -39,11 +39,133 @@
     <property name="page_increment">2</property>
   </object>
   <object class="GtkAdjustment" id="speed_range">
-    <property name="lower">1</property>
     <property name="upper">30</property>
-    <property name="value">10</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
+  </object>
+  <object class="GtkWindow" id="talking_points_window">
+    <property name="can_focus">False</property>
+    <property name="title" translatable="yes">More information</property>
+    <property name="resizable">False</property>
+    <property name="destroy_with_parent">True</property>
+    <property name="deletable">False</property>
+    <child>
+      <object class="GtkBox" id="box2">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <child>
+          <object class="GtkNotebook" id="notebook1">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="hexpand">True</property>
+            <property name="vexpand">True</property>
+            <child>
+              <object class="GtkDrawingArea" id="talking_points1_area">
+                <property name="name">talking_points1.svg</property>
+                <property name="width_request">800</property>
+                <property name="height_request">600</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <signal name="draw" handler="on_talking_points_area_draw" swapped="no"/>
+                <signal name="realize" handler="on_talking_points_area_realize" swapped="no"/>
+              </object>
+            </child>
+            <child type="tab">
+              <object class="GtkLabel" id="label1">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Talking points</property>
+              </object>
+              <packing>
+                <property name="tab_fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkDrawingArea" id="talking_points2_area">
+                <property name="name">talking_points2.svg</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <signal name="draw" handler="on_talking_points_area_draw" swapped="no"/>
+                <signal name="realize" handler="on_talking_points_area_realize" swapped="no"/>
+              </object>
+              <packing>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child type="tab">
+              <object class="GtkLabel" id="label2">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Equations</property>
+              </object>
+              <packing>
+                <property name="position">1</property>
+                <property name="tab_fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkDrawingArea" id="talking_points3_area">
+                <property name="name">talking_points3.svg</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <signal name="draw" handler="on_talking_points_area_draw" swapped="no"/>
+                <signal name="realize" handler="on_talking_points_area_realize" swapped="no"/>
+              </object>
+              <packing>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child type="tab">
+              <object class="GtkLabel" id="label3">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Zebrafish</property>
+              </object>
+              <packing>
+                <property name="position">2</property>
+                <property name="tab_fill">False</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkBox" id="box3">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="hexpand">True</property>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <object class="GtkButton" id="close_btn">
+                <property name="label" translatable="yes">Close</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <signal name="clicked" handler="on_close_btn_clicked" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="pack_type">end</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+      </object>
+    </child>
   </object>
   <object class="GtkAdjustment" id="turning_interaction_align_range">
     <property name="upper">20</property>
@@ -290,7 +412,7 @@
                     <property name="can_focus">True</property>
                     <property name="hexpand">True</property>
                     <property name="adjustment">speed_range</property>
-                    <property name="round_digits">1</property>
+                    <property name="round_digits">0</property>
                     <property name="value_pos">right</property>
                     <signal name="value-changed" handler="on_par_value_changed" swapped="no"/>
                   </object>
@@ -493,6 +615,37 @@
                   </packing>
                 </child>
                 <child>
+                  <object class="GtkCheckButton" id="grab_strong_chk">
+                    <property name="label" translatable="yes">Grabbed fish interacts strongly</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="xalign">0</property>
+                    <property name="active">True</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="grab_repel_chk">
+                    <property name="label" translatable="yes">Grabbed fish repels other fish</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="xalign">0</property>
+                    <property name="draw_indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">3</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkCheckButton" id="debug_update_chk">
                     <property name="label" translatable="yes">Debug update function</property>
                     <property name="visible">True</property>
@@ -504,7 +657,7 @@
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
-                    <property name="position">2</property>
+                    <property name="position">4</property>
                   </packing>
                 </child>
               </object>
@@ -556,6 +709,20 @@
               </packing>
             </child>
             <child>
+              <object class="GtkButton" id="talking_points_btn">
+                <property name="label" translatable="yes">More information</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <signal name="clicked" handler="on_talking_points_btn_clicked" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">10</property>
+              </packing>
+            </child>
+            <child>
               <object class="GtkButton" id="debug_btn">
                 <property name="label" translatable="yes">Debug</property>
                 <property name="visible">True</property>
@@ -566,7 +733,7 @@
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
-                <property name="position">10</property>
+                <property name="position">11</property>
               </packing>
             </child>
           </object>
